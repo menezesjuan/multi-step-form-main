@@ -245,6 +245,380 @@ body {
   border-color: var(--clr-strawberry-red);
 }
 
+/* ==========================================================================
+   Step 2: Plans & Billing Switch
+   ========================================================================== */
+
+.plan-fieldset,
+.addons-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.plans-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.plan-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--clr-light-gray);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  background-color: var(--clr-white);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.plan-card:hover {
+  border-color: var(--clr-purplish-blue);
+}
+
+.plan-card.selected {
+  border-color: var(--clr-purplish-blue);
+  background-color: var(--clr-alabaster);
+}
+
+.plan-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.plan-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.plan-name {
+  font-size: 1rem;
+  font-weight: var(--fw-bold);
+  color: var(--clr-marine-blue);
+}
+
+.plan-price {
+  font-size: 0.875rem;
+  color: var(--clr-cool-gray);
+}
+
+.plan-bonus {
+  font-size: 0.75rem;
+  color: var(--clr-marine-blue);
+  font-weight: var(--fw-medium);
+}
+
+/* Billing Toggle Switch */
+.billing-switch-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background-color: var(--clr-alabaster);
+  padding: 0.875rem;
+  border-radius: var(--radius-md);
+}
+
+.billing-label {
+  font-size: 0.875rem;
+  font-weight: var(--fw-medium);
+  color: var(--clr-cool-gray);
+  transition: color 0.2s ease;
+}
+
+.billing-label.active {
+  color: var(--clr-marine-blue);
+  font-weight: var(--fw-bold);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background-color: var(--clr-marine-blue);
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 12px;
+  left: 4px;
+  bottom: 4px;
+  background-color: var(--clr-white);
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(18px);
+}
+
+.switch input:focus-visible + .slider {
+  outline: 2px solid var(--clr-purplish-blue);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Step 3: Add-ons Components
+   ========================================================================== */
+
+.addons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.addon-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--clr-light-gray);
+  border-radius: var(--radius-md);
+  background-color: var(--clr-white);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.addon-card:hover {
+  border-color: var(--clr-purplish-blue);
+}
+
+.addon-card.selected {
+  border-color: var(--clr-purplish-blue);
+  background-color: var(--clr-alabaster);
+}
+
+.addon-checkbox-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addon-checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.custom-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--clr-light-gray);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--clr-white);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.addon-checkbox:checked + .custom-checkbox {
+  background-color: var(--clr-purplish-blue);
+  border-color: var(--clr-purplish-blue);
+  background-image: url('./assets/images/icon-checkmark.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.addon-checkbox:focus-visible + .custom-checkbox {
+  outline: 2px solid var(--clr-purplish-blue);
+  outline-offset: 2px;
+}
+
+.addon-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.addon-name {
+  font-size: 0.875rem;
+  font-weight: var(--fw-bold);
+  color: var(--clr-marine-blue);
+}
+
+.addon-desc {
+  font-size: 0.75rem;
+  color: var(--clr-cool-gray);
+}
+
+.addon-price {
+  font-size: 0.75rem;
+  color: var(--clr-purplish-blue);
+  font-weight: var(--fw-medium);
+}
+
+/* ==========================================================================
+   Step 4: Summary View
+   ========================================================================== */
+
+.summary-card {
+  background-color: var(--clr-alabaster);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+}
+
+.summary-plan-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summary-plan-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.summary-plan-name {
+  font-size: 0.9375rem;
+  font-weight: var(--fw-bold);
+  color: var(--clr-marine-blue);
+}
+
+.btn-change {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--clr-cool-gray);
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.btn-change:hover,
+.btn-change:focus-visible {
+  color: var(--clr-purplish-blue);
+}
+
+.summary-plan-price {
+  font-size: 1rem;
+  font-weight: var(--fw-bold);
+  color: var(--clr-marine-blue);
+}
+
+.summary-divider {
+  border: none;
+  height: 1px;
+  background-color: var(--clr-light-gray);
+  opacity: 0.6;
+  margin: 0.75rem 0;
+}
+
+.summary-addons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.summary-addon-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summary-addon-name {
+  font-size: 0.875rem;
+  color: var(--clr-cool-gray);
+}
+
+.summary-addon-price {
+  font-size: 0.875rem;
+  color: var(--clr-marine-blue);
+  font-weight: var(--fw-medium);
+}
+
+.summary-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.25rem 0;
+}
+
+.summary-total-label {
+  font-size: 0.875rem;
+  color: var(--clr-cool-gray);
+}
+
+.summary-total-price {
+  font-size: 1.125rem;
+  font-weight: var(--fw-bold);
+  color: var(--clr-purplish-blue);
+}
+
+/* ==========================================================================
+   Step 5: Thank You View
+   ========================================================================== */
+
+.step-thank-you {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.thank-you-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.thank-you-icon {
+  width: 56px;
+  height: 56px;
+}
+
+.thank-you-heading {
+  font-size: 1.5rem;
+  font-weight: var(--fw-bold);
+  color: var(--clr-marine-blue);
+}
+
+.thank-you-message {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--clr-cool-gray);
+  max-width: 440px;
+}
+
+.support-link {
+  color: var(--clr-purplish-blue);
+  text-decoration: none;
+}
+
+.support-link:hover {
+  text-decoration: underline;
+}
+
 /* Step Action Buttons (Mobile: Fixed bar at bottom) */
 .step-actions {
   position: fixed;
@@ -424,6 +798,49 @@ body {
     font-size: 1rem;
     padding: 0.875rem 1rem;
     border-radius: var(--radius-md);
+  }
+
+  /* Desktop Plans Grid */
+  .plans-grid {
+    flex-direction: row;
+    gap: 1.125rem;
+  }
+
+  .plan-card {
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1.25rem 1rem 1rem;
+    min-height: 160px;
+    gap: 2.5rem;
+  }
+
+  /* Desktop Addons */
+  .addon-card {
+    padding: 1.125rem 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .addon-name {
+    font-size: 1rem;
+  }
+
+  .addon-desc {
+    font-size: 0.875rem;
+  }
+
+  .addon-price {
+    font-size: 0.875rem;
+  }
+
+  /* Desktop Summary */
+  .summary-card {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .summary-total-row {
+    padding: 1.75rem 1.5rem 0;
   }
 
   /* Desktop Actions (Contained inside the card) */
