@@ -28,10 +28,83 @@
   const addonCards = document.querySelectorAll('.addon-card');
   const btnChangePlan = document.getElementById('btnChangePlan');
 
-  // Input references
+  // Input & Error references
   const nameInput = document.getElementById('nameInput');
   const emailInput = document.getElementById('emailInput');
   const phoneInput = document.getElementById('phoneInput');
+  const nameError = document.getElementById('nameError');
+  const emailError = document.getElementById('emailError');
+  const phoneError = document.getElementById('phoneError');
+
+  // --- Validation Helpers ---
+  function setFieldError(input, errorElement, message) {
+    if (!input || !errorElement) return;
+
+    if (message) {
+      input.classList.add('has-error');
+      input.setAttribute('aria-invalid', 'true');
+      errorElement.textContent = message;
+    } else {
+      input.classList.remove('has-error');
+      input.removeAttribute('aria-invalid');
+      errorElement.textContent = '';
+    }
+  }
+
+  function isValidEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    return emailPattern.test(email);
+  }
+
+  function validateStep1() {
+    let isValid = true;
+    let firstInvalidInput = null;
+
+    // Validate Name
+    const nameVal = nameInput ? nameInput.value.trim() : '';
+    if (!nameVal) {
+      setFieldError(nameInput, nameError, 'This field is required');
+      isValid = false;
+      if (!firstInvalidInput) firstInvalidInput = nameInput;
+    } else {
+      setFieldError(nameInput, nameError, '');
+    }
+
+    // Validate Email
+    const emailVal = emailInput ? emailInput.value.trim() : '';
+    if (!emailVal) {
+      setFieldError(emailInput, emailError, 'This field is required');
+      isValid = false;
+      if (!firstInvalidInput) firstInvalidInput = emailInput;
+    } else if (!isValidEmail(emailVal)) {
+      setFieldError(emailInput, emailError, 'Valid email required');
+      isValid = false;
+      if (!firstInvalidInput) firstInvalidInput = emailInput;
+    } else {
+      setFieldError(emailInput, emailError, '');
+    }
+
+    // Validate Phone
+    const phoneVal = phoneInput ? phoneInput.value.trim() : '';
+    if (!phoneVal) {
+      setFieldError(phoneInput, phoneError, 'This field is required');
+      isValid = false;
+      if (!firstInvalidInput) firstInvalidInput = phoneInput;
+    } else {
+      setFieldError(phoneInput, phoneError, '');
+    }
+
+    if (firstInvalidInput) {
+      firstInvalidInput.focus();
+    }
+
+    return isValid;
+  }
+
+  function validateStep2() {
+    const selectedRadio = document.querySelector('input[name="plan"]:checked');
+    return !!selectedRadio;
+  }
 
   // --- Navigation & Pane Switching ---
   function goToStep(stepIndex) {
@@ -138,21 +211,50 @@
     });
   }
 
-  // --- Input Syncing ---
+  // --- Input Syncing & Live Error Clearing ---
   function initInputSync() {
     if (nameInput) {
       nameInput.addEventListener('input', (e) => {
         state.formData.name = e.target.value.trim();
+        if (e.target.value.trim()) {
+          setFieldError(nameInput, nameError, '');
+        }
+      });
+      nameInput.addEventListener('blur', () => {
+        if (!nameInput.value.trim()) {
+          setFieldError(nameInput, nameError, 'This field is required');
+        }
       });
     }
+
     if (emailInput) {
       emailInput.addEventListener('input', (e) => {
         state.formData.email = e.target.value.trim();
+        if (isValidEmail(e.target.value.trim())) {
+          setFieldError(emailInput, emailError, '');
+        }
+      });
+      emailInput.addEventListener('blur', () => {
+        const val = emailInput.value.trim();
+        if (!val) {
+          setFieldError(emailInput, emailError, 'This field is required');
+        } else if (!isValidEmail(val)) {
+          setFieldError(emailInput, emailError, 'Valid email required');
+        }
       });
     }
+
     if (phoneInput) {
       phoneInput.addEventListener('input', (e) => {
         state.formData.phone = e.target.value.trim();
+        if (e.target.value.trim()) {
+          setFieldError(phoneInput, phoneError, '');
+        }
+      });
+      phoneInput.addEventListener('blur', () => {
+        if (!phoneInput.value.trim()) {
+          setFieldError(phoneInput, phoneError, 'This field is required');
+        }
       });
     }
   }
@@ -162,6 +264,18 @@
     document.querySelectorAll('[data-action="next"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
+
+        // Validation gate
+        if (state.currentStep === 1) {
+          if (!validateStep1()) {
+            return;
+          }
+        } else if (state.currentStep === 2) {
+          if (!validateStep2()) {
+            return;
+          }
+        }
+
         goToStep(state.currentStep + 1);
       });
     });
@@ -200,7 +314,7 @@
     initInputSync();
     initNavigationButtons();
     goToStep(1);
-    console.log('Multi-step form navigation ready.');
+    console.log('Multi-step form navigation and validation ready.');
   }
 
   if (document.readyState === 'loading') {
