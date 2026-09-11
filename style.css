@@ -180,6 +180,7 @@ body {
   color: var(--clr-marine-blue);
   line-height: 1.2;
   margin-bottom: 0.5rem;
+  outline: none;
 }
 
 .step-description {
