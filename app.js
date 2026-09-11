@@ -5,6 +5,20 @@
 (function () {
   'use strict';
 
+  // --- Pricing Data ---
+  const PRICING_DATA = {
+    plans: {
+      arcade: { name: 'Arcade', monthly: 9, yearly: 90 },
+      advanced: { name: 'Advanced', monthly: 12, yearly: 120 },
+      pro: { name: 'Pro', monthly: 15, yearly: 150 }
+    },
+    addons: {
+      online: { name: 'Online service', monthly: 1, yearly: 10 },
+      storage: { name: 'Larger storage', monthly: 2, yearly: 20 },
+      profile: { name: 'Customizable Profile', monthly: 2, yearly: 20 }
+    }
+  };
+
   // --- State Model ---
   const state = {
     currentStep: 1,
@@ -35,6 +49,13 @@
   const nameError = document.getElementById('nameError');
   const emailError = document.getElementById('emailError');
   const phoneError = document.getElementById('phoneError');
+
+  // Summary references
+  const summaryPlanName = document.getElementById('summaryPlanName');
+  const summaryPlanPrice = document.getElementById('summaryPlanPrice');
+  const summaryAddonsList = document.getElementById('summaryAddonsList');
+  const summaryTotalLabel = document.getElementById('summaryTotalLabel');
+  const summaryTotalPrice = document.getElementById('summaryTotalPrice');
 
   // --- Validation Helpers ---
   function setFieldError(input, errorElement, message) {
@@ -106,11 +127,121 @@
     return !!selectedRadio;
   }
 
+  // --- Dynamic Pricing UI Updates ---
+  function updatePricingUI() {
+    const isYearly = state.formData.billingCycle === 'yearly';
+    const cycleSuffix = isYearly ? 'yr' : 'mo';
+
+    // Update Step 2 Plan Cards
+    planCards.forEach(card => {
+      const radio = card.querySelector('input[type="radio"]');
+      const priceSpan = card.querySelector('.plan-price');
+      const bonusSpan = card.querySelector('.plan-bonus');
+
+      if (radio && priceSpan) {
+        const planKey = radio.value;
+        const planData = PRICING_DATA.plans[planKey];
+        if (planData) {
+          const price = isYearly ? planData.yearly : planData.monthly;
+          priceSpan.textContent = `$${price}/${cycleSuffix}`;
+        }
+      }
+
+      if (bonusSpan) {
+        if (isYearly) {
+          bonusSpan.removeAttribute('hidden');
+        } else {
+          bonusSpan.setAttribute('hidden', '');
+        }
+      }
+    });
+
+    // Update Step 3 Add-on Cards
+    addonCards.forEach(card => {
+      const checkbox = card.querySelector('.addon-checkbox');
+      const priceSpan = card.querySelector('.addon-price');
+
+      if (checkbox && priceSpan) {
+        const addonKey = checkbox.value;
+        const addonData = PRICING_DATA.addons[addonKey];
+        if (addonData) {
+          const price = isYearly ? addonData.yearly : addonData.monthly;
+          priceSpan.textContent = `+$${price}/${cycleSuffix}`;
+        }
+      }
+    });
+
+    // Recalculate summary if on Step 4
+    if (state.currentStep === 4) {
+      renderSummary();
+    }
+  }
+
+  // --- Step 4 Order Summary Rendering ---
+  function renderSummary() {
+    const isYearly = state.formData.billingCycle === 'yearly';
+    const cycleSuffix = isYearly ? 'yr' : 'mo';
+    const cycleLabel = isYearly ? 'Yearly' : 'Monthly';
+
+    const selectedPlan = PRICING_DATA.plans[state.formData.plan] || PRICING_DATA.plans.arcade;
+    const planCost = isYearly ? selectedPlan.yearly : selectedPlan.monthly;
+    let totalCost = planCost;
+
+    // Update Plan Name & Price
+    if (summaryPlanName) {
+      summaryPlanName.textContent = `${selectedPlan.name} (${cycleLabel})`;
+    }
+    if (summaryPlanPrice) {
+      summaryPlanPrice.textContent = `$${planCost}/${cycleSuffix}`;
+    }
+
+    // Populate Add-ons
+    if (summaryAddonsList) {
+      summaryAddonsList.innerHTML = '';
+
+      state.formData.addons.forEach(addonKey => {
+        const addonData = PRICING_DATA.addons[addonKey];
+        if (addonData) {
+          const addonCost = isYearly ? addonData.yearly : addonData.monthly;
+          totalCost += addonCost;
+
+          const row = document.createElement('div');
+          row.className = 'summary-addon-row';
+
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'summary-addon-name';
+          nameSpan.textContent = addonData.name;
+
+          const priceSpan = document.createElement('span');
+          priceSpan.className = 'summary-addon-price';
+          priceSpan.textContent = `+$${addonCost}/${cycleSuffix}`;
+
+          row.appendChild(nameSpan);
+          row.appendChild(priceSpan);
+          summaryAddonsList.appendChild(row);
+        }
+      });
+    }
+
+    // Update Total
+    if (summaryTotalLabel) {
+      summaryTotalLabel.textContent = `Total (per ${isYearly ? 'year' : 'month'})`;
+    }
+    if (summaryTotalPrice) {
+      summaryTotalPrice.textContent = `+$${totalCost}/${cycleSuffix}`;
+    }
+  }
+
   // --- Navigation & Pane Switching ---
   function goToStep(stepIndex) {
     if (stepIndex < 1 || stepIndex > 5) return;
 
     state.currentStep = stepIndex;
+
+    // If entering Step 4, render the summary dynamically
+    if (stepIndex === 4) {
+      renderSummary();
+    }
 
     // Update Step Panes
     stepPanes.forEach(pane => {
@@ -119,7 +250,7 @@
         pane.removeAttribute('hidden');
         pane.classList.add('active');
 
-        // Accessible Focus Management: focus heading on step change
+        // Accessible Focus Management
         const heading = pane.querySelector('.step-heading, .thank-you-heading');
         if (heading) {
           heading.setAttribute('tabindex', '-1');
@@ -180,6 +311,8 @@
         monthlyLabel.classList.toggle('active', !isYearly);
         yearlyLabel.classList.toggle('active', isYearly);
       }
+
+      updatePricingUI();
     });
   }
 
@@ -189,7 +322,6 @@
       const checkbox = card.querySelector('.addon-checkbox');
 
       if (checkbox) {
-        // Synchronize initial state
         if (checkbox.checked) {
           card.classList.add('selected');
           if (!state.formData.addons.includes(checkbox.value)) {
@@ -313,8 +445,9 @@
     initAddonSelection();
     initInputSync();
     initNavigationButtons();
+    updatePricingUI();
     goToStep(1);
-    console.log('Multi-step form navigation and validation ready.');
+    console.log('Multi-step form ready with dynamic pricing and summary.');
   }
 
   if (document.readyState === 'loading') {
