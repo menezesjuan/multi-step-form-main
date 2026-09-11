@@ -284,12 +284,22 @@
     planCards.forEach(card => {
       const radio = card.querySelector('input[type="radio"]');
 
-      card.addEventListener('click', () => {
+      const selectPlan = () => {
         planCards.forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
         if (radio) {
           radio.checked = true;
           state.formData.plan = radio.value;
+        }
+      };
+
+      card.addEventListener('click', selectPlan);
+
+      // Keyboard accessibility
+      card.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          selectPlan();
         }
       });
     });
@@ -329,7 +339,7 @@
           }
         }
 
-        checkbox.addEventListener('change', () => {
+        const syncCheckboxState = () => {
           card.classList.toggle('selected', checkbox.checked);
           if (checkbox.checked) {
             if (!state.formData.addons.includes(checkbox.value)) {
@@ -337,6 +347,16 @@
             }
           } else {
             state.formData.addons = state.formData.addons.filter(v => v !== checkbox.value);
+          }
+        };
+
+        checkbox.addEventListener('change', syncCheckboxState);
+
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            checkbox.checked = !checkbox.checked;
+            syncCheckboxState();
           }
         });
       }
